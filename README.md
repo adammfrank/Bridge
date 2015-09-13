@@ -1,5 +1,12 @@
-# ITAWOFMA-api
+Bridge
+A project demonstrating a web application aimed at the civil sector.
+Built for GlobalHack5.
 
-Here is how to install and use Swagger:
-https://github.com/swagger-api/swagger-node
-Note: You need the swagger server to also be running in order to use the editor.
+Team: Who Broke The Build?
+
+Contributors:
+Adam Frank
+Nikolai Laba
+Curtis Meuth
+Josh Epstein
+Alex Bolinsky
