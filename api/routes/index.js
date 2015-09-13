@@ -1,0 +1,318 @@
+var express = require('express');
+var router = express.Router();
+var court_boundaries = require('../public/data/courts.json');
+var AWS = require('aws-sdk');
+var bcrypt = require('bcrypt');
+var sha256 = require('sha256');
+var async = require('async');
+var ripemd160 = require('ripemd160');
+var credentials = require('../../aws.json');
+
+AWS.config.region = 'us-east-1';
+AWS.config.update(credentials);
+
+router.post('/textmessage', function (req, res) {
+  console.log('req ' + JSON.stringify(req.body));
+  var fname = req.body.fname;
+  var lname = req.body.lname;
+  var phoneNumber = "1-" + req.body.phoneNumber;
+  var social = req.body.social;
+
+  var bothNames = fname.toLowerCase() + lname.toLowerCase();
+
+  var dynamoDB = new AWS.DynamoDB();
+
+  var params = {
+    TableName: 'contacts-table',
+    Key: {
+      first_last : {
+        S: bothNames
+      }
+    }
+  }
+
+  dynamoDB.getItem(params, function(err, data) {
+    if(err) console.log(err, err.stack);
+    else if (data.Item) {
+      var ssn = data.Item.ssn.S;
+      var salt = data.Item.salt.S;
+
+      var testEncrypt = ripemd160(salt + social).toString('hex');
+
+      if(testEncrypt !== ssn)
+        console.log("Incorrect Credentials");
+        //res.send("Incorrect Credentials");
+      else {
+        var sns = new AWS.SNS();
+
+        console.log('after sns');
+
+        var params = {
+          Name: ssn
+        };
+        sns.createTopic(params, function(err, data){
+          console.log('creating topic');
+          if(err) console.log(err, err.stack);
+          else {
+
+            var params = {
+              Protocol: 'sms',
+              TopicArn: data.TopicArn,
+              Endpoint: phoneNumber
+            };
+            console.log("DATUMS " + JSON.stringify(data));
+            var params2 = {
+              AttributeName: 'DisplayName',
+              TopicArn: data.TopicArn,
+              AttributeValue: "Municipal Alerts"
+            };
+            var topic_arn = data.TopicArn;
+            sns.setTopicAttributes(params2, function(err, data) {
+              sns.getTopicAttributes(params, function(err, data){
+                console.log("MORE DATUMS " + JSON.stringify(data));
+                sns.subscribe(params, function(err, data){
+                  console.log('subscribing');
+                  if(err) console.log(err, err.stack);
+                  else {
+
+                    var params = {
+                      Item: {
+                        "phone_number": {
+                          S: phoneNumber
+                        },
+                        "topic_arn": {
+                          S: topic_arn
+                        },
+                        "social": {
+                          S: ssn
+                        }
+                      },
+                      TableName: "PhoneNumbers"
+                    };
+                    var dynamoDB = new AWS.DynamoDB();
+
+                    dynamoDB.putItem(params, function(err, data){
+                      if(err) console.log(err, err.stack);
+                      else {
+                        res.send('subscribed');
+                      }
+                    });
+                  }
+                });
+              });
+            });
+
+          }
+        });
+      }
+
+      console.log(JSON.stringify(data));
+      res.send(data);
+    }
+    else {
+      console.log("Not in database");
+      res.send("Not in database");
+    }
+  });
+
+});
+
+router.post('/dataRequestWithName', function(req, res){
+  console.log(req.body.fname);
+
+  var fname = req.body.fname;
+  var lname = req.body.lname;
+  var dob = req.body.dob;
+
+  var fl = fname + lname;
+
+  var results = {
+    citations: [],
+    violations: [],
+    warrants: [],
+    combined: []
+  }
+
+  var dynamodb = new AWS.DynamoDB();
+
+  console.log('before params')
+  var params = {
+    TableName: "citations-table",
+    KeyConditions: {
+      first_last : {
+        ComparisonOperator: 'EQ',
+        AttributeValueList: [
+          {
+            S: fl
+          }
+        ]
+      }
+    }
+  };
+  console.log('after params');
+  dynamodb.query(params, function(err, data) {
+    console.log('in query');
+    if(err) console.log(err, err.stack);
+    else {
+      results.citations = data.Items;
+      async.eachSeries(data.Items, function(item, callback){
+            console.log("item " + JSON.stringify(item));
+            var params = {
+              TableName: "violations-table",
+              Key: {
+                "citation_number": {
+                  N : item.citation_number.N
+                }
+              }
+            };
+
+            dynamodb.getItem(params, function(err, data) {
+              if(err) console.log(err, err.stack);
+              else {
+                results.violations.push(data.Item);
+
+                callback();
+              }
+
+            });
+          },
+          function(err, data) {
+            var params = {
+              TableName: "warrants-table",
+              KeyConditions: {
+                SSN : {
+                  ComparisonOperator: 'EQ',
+                  AttributeValueList: [
+                    {
+                      S: "dsfasdfs"
+                    }
+                  ]
+                }
+              }
+            };
+            dynamodb.query(params, function(err, data) {
+              if (err) console.log(err, err.stack);
+
+              if (data !== null) {
+
+              results.warrants = data.Items;
+
+              // remove whitespace in warrants result
+              for (var obj in results.warrants) {
+                var curObj = results.warrants[obj];
+                for (var field in curObj) {
+                  var noSpace = field.replace(/\s/g, '');
+                  curObj[noSpace] = curObj[field];
+                  delete curObj[field];
+                }
+
+              }
+
+              for (var citField in results.citations) {
+                var curCit = results.citations[citField];
+                for (var vioField in results.violations) {
+                  var curVio = results.violations[vioField];
+                  if (curVio && curCit.citation_number.S === curVio.citation_number.S) {
+                    console.log("Found " + JSON.stringify(curCit));
+                    console.log("Found2 " + JSON.stringify(curVio));
+                    var combined = curCit;
+                    combined["court_cost"] = curVio.court_cose;
+                    combined["fine_amount"] = curVio.fine_amount;
+                    combined["status"] = curVio.status;
+                    combined["status_date"] = curVio.status_date;
+                    combined["violation_description"] = curVio.violation_description;
+                    combined["violation_number"] = curVio.violation_number;
+                    combined["warrant_number"] = curVio.warrant_number;
+
+                    results.combined.push(combined);
+                  }
+                }
+              }
+                console.log("Results " + results);
+              res.send(results);
+            }
+            });
+          });
+
+    }
+  });
+});
+
+
+// For testing purposes
+router.post('/addToWarrants', function(req, res){
+  var fname = req.body.fname;
+  var lname = req.body.lname;
+  var ssn = req.body.ssn;
+  var salt = req.body.salt;
+
+  var dynamoDB = new DynamoDB();
+  var params = {
+    TableName: "contacts-table",
+    Item: {
+      first_last: {
+        S: fname.toLowerCase() + lname.toLowerCase()
+      },
+      salt: {
+        S: salt
+      },
+      ssn: {
+        S: ssn
+      }
+    }
+  }
+
+  dynamoDB.putItem(params, function(err, data){
+    if(err) console.log(err, err.stack);
+    else {
+      console.log("added to contacts");
+      var params = {
+        TableName: "warrants-table",
+        Item: {
+          id: {
+            S: fname.toLowerCase() + lname.toLowerCase()
+          },
+          ssn: {
+            S: ssn
+          }
+        }
+      }
+
+      dynamoDB.putItem(params, function(err, data) {
+        if(err) console.log(err.stack, err);
+        else {
+          res.send("Added to warrants");
+        }
+      });
+    }
+  });
+});
+
+
+/* GET home page. */
+router.get('/', function(req, res) {
+  res.render('home');
+});
+
+router.get('/location', function(req, res) {
+  res.render('location');
+});
+
+router.get('/courts', function(req, res){
+  res.send(court_boundaries);
+});
+
+router.get('/citations', function(req, res) {
+  var firstName = req.param.firstName;
+  var lastName = req.param.lastName;
+  var address = req.param.address;
+
+  res.send('hello');
+
+
+});
+
+
+
+
+module.exports = router;

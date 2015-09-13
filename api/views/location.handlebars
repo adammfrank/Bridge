@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+<head>
+    <title>Court Locations</title>
+    <link rel='stylesheet' href='css/template.css'>
+    <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css'>
+    <link rel="stylesheet" type="text/css" href="http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.css" />
+    <link rel="css/Control.OSMGeocoder.css">
+    <script type='text/javascript' src='//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js'></script>
+    <script type='text/javascript' src='http://cdn.leafletjs.com/leaflet-0.7.5/leaflet.js?2'></script>
+    <script type='text/javascript' src="js/Control.OSMGeocoder.js"></script>
+    <script type="text/javascript" src="js/leaflet-pip.min.js"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/bootstrap-theme.min.css">
+    <script src="js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <div class="jumbotron">
+        <h1>Locate My Court</h1>
+        <p class="lead">If you know where you got your ticket and are looking to locate the court you must report to, click on the location where you received your citation.</p>
+    </div>
+
+    <div id="map">
+        <div id='state' class='state'></div>
+        <a class="btn locate" href="#" role="button">Locate Me</a>
+    </div>
+    <script type='text/javascript' src="js/location.js"></script>
+
+    <div class="row marketing">
+        <div class="col-lg-6">
+            <h4>Court Information</h4>
+            <div id="court-info"></div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>&copy; Company 2014</p>
+    </footer>
+
+</div> <!-- /container -->
+</body>
+</html>

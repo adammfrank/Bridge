@@ -1,0 +1,109 @@
+{{#if warrants}}
+<ul>
+	{{#each warrants}}
+	<li id='{{CaseNumber.S}}'>
+		<h2>Warrant<span rel='{{CaseNumber.S}}' class='toggle'><img src='images/plus.svg'></span></h2>
+		<div class='dropdown'>
+			<h2>Case #: {{CaseNumber.S}}</h2>
+			<p>Zip Code: {{ZIPCode.N}}</p>
+			<p>In order to handle an outstanding warrant first hire a criminal defense attorney and contact the court related to the above zipcode. The court's information can be found using the "Court Locater" below.</p>
+			<div class='charts'>
+				<h3><img src='images/stats.png'>By the Numbers</h3>
+				<div id='lawyer-{{CaseNumber.S}}' class='chart'></div>
+				<div id='pleas-{{CaseNumber.S}}' class='chart'></div>
+			</div>
+			<h3><img src='images/pay.png'>Payment Options</h3>
+			<p>Online - Please visit: <a target='_blank' href='https://www.municipalonlinepayments.com/stlouiscountymo'>Municipal Online Payments</a> to pay online.</p>
+			<p>Other - If fines cannot be paid online you must contact the court, by phone or in person, to set up other methods to pay for the fine, phone numbers and addresses can be found below.</p>
+			<h3><img src='images/courts.png'>Court Locator</h3>
+			<p>Fill in your location in the search bar, or click on the approximate location where you received your citation/warrant.</p>
+			<div id="map-container-{{CaseNumber.S}}"></div>
+			<h3>Contact Information</h3>
+			<p>1234 Court Street</p>
+			<p>413-906-7773</p>
+		</div>
+		{{/each}}
+</ul>
+{{/if}}
+{{#if citations}}
+<ul>
+	{{#each citations}}
+	<li id='{{citation_number.N}}'>
+		<h2>Citation<span rel='{{citation_number.N}}' class='toggle'><img src='images/plus.svg'></span></h2>
+		<div class='dropdown'>
+			<h2>Case #: {{citation_number.N}}</h2>
+			<p>Court Location: {{court_location.S}}</p>
+			<div class='charts'>
+				<h3><img src='images/stats.png'>By the Numbers</h3>
+				<div id='lawyer-{{citation_number.N}}' class='chart'></div>
+				<div id='pleas-{{citation_number.N}}' class='chart'></div>
+			</div>
+			<h3><img src='images/pay.png'>Payment Options</h3>
+			<p>Online - Please visit: <a target='_blank' href='https://www.municipalonlinepayments.com/stlouiscountymo'>Municipal Online Payments</a> to pay online.</p>
+			<p>Other - If fines cannot be paid online you must contact the court, by phone or in person, to set up other methods to pay for the fine, phone numbers and addresses can be found below.</p>
+			<h3><img src='images/courts.png'>Court Locator</h3>
+			<p>Fill in your location in the search bar, or click on the approximate location where you received your citation/warrant.</p>
+			<div id="map-container-{{citation_number.N}}"></div>
+			<h3>Contact Information</h3>
+			<p>{{court_address.S}}, {{court_location.S}}</p>
+			<p>413-906-7773</p>
+		</div>
+		{{/each}}
+</ul>
+{{/if}}
+{{#if violations}}
+<ul>
+	{{#each violations}}
+	<li id='{{citation_number.N}}'>
+		<h2>Violation<span rel='{{citation_number.N}}' class='toggle'><img src='images/plus.svg'></span></h2>
+		<div class='dropdown'>
+			<h2>Case #: {{citation_number.N}}</h2>
+			<p>{{violation_description.S}}</p>
+			<div class='charts'>
+				<h3><img src='images/stats.png'>By the Numbers</h3>
+				<div id='lawyer-{{citation_number.N}}' class='chart'></div>
+				<div id='pleas-{{citation_number.N}}' class='chart'></div>
+			</div>
+			<h3><img src='images/pay.png'>Payment Options</h3>
+			<p>Online - Please visit: <a target='_blank' href='https://www.municipalonlinepayments.com/stlouiscountymo'>Municipal Online Payments</a> to pay online.</p>
+			<p>Other - If fines cannot be paid online you must contact the court, by phone or in person, to set up other methods to pay for the fine, phone numbers and addresses can be found below.</p>
+			<h3><img src='images/courts.png'>Court Locator</h3>
+			<p>Fill in your location in the search bar, or click on the approximate location where you received your citation/warrant.</p>
+			<div id="map-container-{{citation_number.N}}"></div>
+			<h3>Contact Information</h3>
+			<p>1234 Court Street</p>
+			<p>413-906-7773</p>
+		</div>
+		{{/each}}
+</ul>
+{{/if}}
+{{#if combined}}
+<ul>
+	{{#each combined}}
+	<li id='{{citation_number.N}}'>
+		<h2>Violation<span rel='{{citation_number.N}}' class='toggle'><img src='images/plus.svg'></span></h2>
+		<div class='dropdown'>
+			<h2>Case #: {{citation_number.N}}</h2>
+			<p>{{violation_description.S}}, Fine: {{fine_amount.S}}</p>
+			<div class='charts'>
+				<h3><img src='images/stats.png'>By the Numbers</h3>
+				<div id='lawyer-{{citation_number.N}}' class='chart'></div>
+				<div id='pleas-{{citation_number.N}}' class='chart'></div>
+			</div>
+			<h3><img src='images/pay.png'>Payment Options</h3>
+			<p>Online - Please visit: <a target='_blank' href='https://www.municipalonlinepayments.com/stlouiscountymo'>Municipal Online Payments</a> to pay online.</p>
+			<p>Other - If fines cannot be paid online you must contact the court, by phone or in person, to set up other methods to pay for the fine, phone numbers and addresses can be found below.</p>
+			<h3><img src='images/courts.png'>Court Locator</h3>
+			<p>Fill in your location in the search bar, or click on the approximate location where you received your citation/warrant.</p>
+			<div id="map-container-{{citation_number.N}}"></div>
+			<h3>Contact Information</h3>
+			<p>{{court_address.S}}, {{court_location.S}}</p>
+			<p>413-906-7773</p>
+		</div>
+	</li>
+	{{/each}}
+</ul>
+{{/if}}
+{{#if empty}}
+<p class='empty'>You have no outstanding warrants, violations, or citations at this time.</p>
+{{/if}}
