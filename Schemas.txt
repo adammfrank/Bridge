@@ -1,0 +1,60 @@
+These are the required DynamoDB schemas.
+
+PhoneNumbers:
+
+{
+phone_number: S (Primary Hash Key),
+social: S,
+topic_arn: S
+}
+
+citations-table:
+
+{
+citation_date: S,
+citation_number: S,
+court_address: S,
+court_date: S,
+court_location: S,
+date_of_birth: S,
+defendant_address: S,
+defendant_city: S,
+defendant_state: S,
+drivers_license_number: S,
+first_last: S (Primary Hash Key),
+first_last_dob: S,
+first_name: S,
+last_nameL S,
+ssn: S
+}
+
+contacts-table
+{
+first_last: S (Primary Hash Key),
+salt: S,
+ssn: S
+}
+
+violations-table
+{
+citation_number: N (Primary Hash Key),
+court_cost: S,
+fine_amount: S,
+status: S,
+status_date: S,
+violation_description: S,
+violation_number: S,
+warrant_number: S,
+warrant_status: S
+}
+
+warrants-table
+{
+"Case Number": S,
+"Date of Birth": S,
+"Defendant": S,
+"First + Last + DOB": S,
+"id": S,
+"SSN": S (Primary Hash Key),
+"ZIP Code": N
+}
