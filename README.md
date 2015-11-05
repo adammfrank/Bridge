@@ -1,6 +1,6 @@
 Bridge
 A project demonstrating a web application aimed at the civil sector.
-Built for GlobalHack5.
+Built for GlobalHack5. Received First Place, College Division. 
 
 Technology: Nodejs, Express, Backbone, Java, AWS (Lambda, DynamoDB, SNS, EC2), SASS
 
@@ -13,8 +13,8 @@ Navigate to http://localhost:3000 in your browser
 Team: Who Broke The Build?
 
 Contributors:
-Adam Frank
-Nikolai Laba
-Curtis Meuth
-Josh Epstein
+Adam Frank,
+Nikolai Laba,
+Curtis Meuth,
+Josh Epstein,
 Alex Bolinsky
